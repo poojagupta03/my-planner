@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Pretty Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff0f6;--card:#ffffff;--ink:#4a2c40;--soft:#9b7a8d;--pink:#ff8fb8;--lav:#c9b6ff;--mint:#b9f0d8;--line:#ffd6e7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241a22;--card:#33232f;--ink:#ffe8f2;--soft:#caa6b9;--line:#4d3445;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#241a22;--card:#33232f;--ink:#ffe8f2;--soft:#caa6b9;--line:#4d3445;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Poppins',system-ui,sans-serif;min-height:100%;padding:16px 16px 90px;max-width:520px;margin:0 auto}
+h1{font-size:22px;margin:4px 0}
+.sub{color:var(--soft);font-size:13px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(255,143,184,.15)}
+.top{display:flex;align-items:center;gap:14px}
+.ring{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:14px;background:conic-gradient(var(--pink) calc(var(--p,0)*1%),var(--line) 0)}
+.ring span{background:var(--card);width:50px;height:50px;border-radius:50%;display:grid;place-items:center}
+input,select,button{font-family:inherit;font-size:14px;border-radius:14px;border:1px solid var(--line);padding:10px 12px;background:var(--card);color:var(--ink)}
+input,select{width:100%;margin-bottom:8px}
+.row{display:flex;gap:8px}
+.btn{background:linear-gradient(135deg,var(--pink),var(--lav));color:#fff;border:0;font-weight:600;cursor:pointer}
+.ghost{cursor:pointer}
+.item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.item:last-child{border:0}
+.item b{display:block;font-weight:500}
+.item small{color:var(--soft)}
+.item.done b{text-decoration:line-through;opacity:.5}
+.chip{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--mint);color:#2d5c49}
+.chip.study{background:var(--lav);color:#43307a}.chip.personal{background:var(--line);color:#8a3b64}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:6px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line)}
+.tabs button{flex:1;max-width:150px;cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,var(--pink),var(--lav));color:#fff;border:0}
+.timer{font-size:56px;font-weight:600;text-align:center;margin:10px 0}
+.hide{display:none}
+#alarm{position:fixed;inset:0;background:rgba(74,44,64,.6);display:none;place-items:center;z-index:9;padding:20px}
+#alarm .card{text-align:center;max-width:340px;width:100%}
+.x{background:none;border:0;cursor:pointer;font-size:18px;padding:4px}
+.q{font-size:13px;color:var(--soft);font-style:italic}
+</style>
+</head>
+<body>
+<h1>Hello, cutie ✨</h1>
+<div class="sub" id="date"></div>
+
+<div class="card top">
+  <div class="ring" id="ring"><span id="pct">0%</span></div>
+  <div><b id="sum">Aaj ka progress</b><div class="q" id="quote"></div></div>
+</div>
+
+<section id="t-rem">
+  <div class="card">
+    <input id="title" placeholder="Kya yaad rakhna hai? 🌷">
+    <div class="row"><input id="when" type="datetime-local"><select id="cat"><option value="study">📚 Study</option><option value="personal">💖 Personal</option><option value="exam">📝 Exam</option></select></div>
+    <div class="row"><select id="rep"><option value="0">Ek baar</option><option value="1">Roz</option></select><button class="btn" id="add">Add + Alarm ⏰</button></div>
+    <button class="ghost" id="perm" style="width:100%;margin-top:8px">🔔 Notifications on karo</button>
+  </div>
+  <div class="card" id="list"></div>
+</section>
+
+<section id="t-focus" class="hide">
+  <div class="card">
+    <div class="row"><button class="ghost" data-m="25">25 min</button><button class="ghost" data-m="45">45 min</button><button class="ghost" data-m="5">Break 5</button></div>
+    <div class="timer" id="clock">25:00</div>
+    <div class="row"><button class="btn" id="go" style="flex:1">Start 🌸</button><button class="ghost" id="reset">Reset</button></div>
+    <div class="sub" style="margin:12px 0 0;text-align:center" id="focusTotal"></div>
+  </div>
+</section>
+
+<section id="t-notes" class="hide">
+  <div class="card">
+    <b>📓 Quick Notes</b>
+    <textarea id="notes" rows="10" placeholder="Formulas, ideas, kuch bhi..." style="width:100%;margin-top:8px;border-radius:14px;border:1px solid var(--line);padding:10px;font-family:inherit;background:var(--card);color:var(--ink)"></textarea>
+  </div>
+</section>
+
+<div class="tabs"><button data-t="rem" class="on">⏰ Remind</button><button data-t="focus">🍅 Focus</button><button data-t="notes">📓 Notes</button></div>
+
+<div id="alarm"><div class="card"><div style="font-size:40px">⏰</div><h2 id="aT"></h2><div class="row"><button class="ghost" id="snz" style="flex:1">Snooze 5m</button><button class="btn" id="ok" style="flex:1">Done ✔</button></div></div></div>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+var S={items:[],focus:{},notes:''};
+function load(){try{var r=localStorage.getItem('planner');if(r)S=JSON.parse(r)}catch(e){}}
+function save(){try{localStorage.setItem('planner',JSON.stringify(S))}catch(e){}}
+load();
+var quotes=['Chhote steps, bade sapne 🌷','Tum kar sakti ho! 💪','Aaj ka kaam aaj ✨','Consistency > perfection 🌸','Break lena bhi zaroori hai 🍵'];
+$('quote').textContent=quotes[new Date().getDate()%quotes.length];
+$('date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+var ac=null,beepT=null,cur=null;
+function ctx(){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}}
+function beep(){if(!ac)return;[0,.25,.5].forEach(function(d){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.value=.25;o.connect(g);g.connect(ac.destination);o.start(ac.currentTime+d);o.stop(ac.currentTime+d+.15)})}
+function ring(title,item){cur=item||null;$('aT').textContent=title;$('alarm').style.display='grid';ctx();beep();clearInterval(beepT);beepT=setInterval(beep,2000);
+ try{if(navigator.vibrate)navigator.vibrate([300,150,300,150,300])}catch(e){}
+ try{if('Notification' in window&&Notification.permission==='granted')new Notification('⏰ '+title)}catch(e){}}
+function stop(){clearInterval(beepT);$('alarm').style.display='none'}
+$('ok').onclick=function(){stop();if(cur){complete(cur)}};
+$('snz').onclick=function(){stop();if(cur){cur.when=Date.now()+300000;cur.fired=false;save();render()}};
+function complete(it){if(it.rep){while(it.when<=Date.now())it.when+=86400000;it.fired=false}else{it.done=true}save();render()}
+$('perm').onclick=function(){ctx();try{Notification.requestPermission().then(function(p){$('perm').textContent=p==='granted'?'🔔 Notifications ON ✅':'Notifications blocked hain'})}catch(e){$('perm').textContent='Is browser me notifications nahi'}};
+$('add').onclick=function(){ctx();var t=$('title').value.trim(),w=$('when').value;if(!t||!w)return;
+ S.items.push({id:Date.now(),title:t,when:new Date(w).getTime(),cat:$('cat').value,rep:$('rep').value==='1',done:false,fired:false});
+ $('title').value='';save();render()};
+function del(id){S.items=S.items.filter(function(i){return i.id!==id});save();render()}
+function render(){
+ var its=S.items.slice().sort(function(a,b){return a.when-b.when});
+ $('list').innerHTML=its.length?'':'<div class="sub">Abhi kuch nahi hai. Pehla reminder add karo 🌸</div>';
+ its.forEach(function(i){var d=document.createElement('div');d.className='item'+(i.done?' done':'');
+  var c=document.createElement('input');c.type='checkbox';c.style.cssText='width:20px;margin:0';c.checked=i.done;c.onchange=function(){i.done=c.checked;save();render()};
+  var m=document.createElement('div');m.style.flex='1';
+  var b=document.createElement('b');b.textContent=i.title;
+  var s=document.createElement('small');s.textContent=new Date(i.when).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+(i.rep?' · roz':'');
+  var ch=document.createElement('span');ch.className='chip '+i.cat;ch.textContent=i.cat;
+  var x=document.createElement('button');x.className='x';x.textContent='🗑';x.onclick=function(){del(i.id)};
+  m.appendChild(b);m.appendChild(s);d.appendChild(c);d.appendChild(m);d.appendChild(ch);d.appendChild(x);$('list').appendChild(d)});
+ var td=new Date().toDateString(),day=S.items.filter(function(i){return new Date(i.when).toDateString()===td});
+ var dn=day.filter(function(i){return i.done}).length,p=day.length?Math.round(dn/day.length*100):0;
+ $('ring').style.setProperty('--p',p);$('pct').textContent=p+'%';$('sum').textContent='Aaj: '+dn+'/'+day.length+' done'}
+setInterval(function(){var n=Date.now();for(var k=0;k<S.items.length;k++){var i=S.items[k];if(!i.done&&!i.fired&&i.when<=n&&n-i.when<3600000*12){i.fired=true;save();ring(i.title,i);break}}},3000);
+// focus
+var mins=25,left=1500,tm=null;
+function fmt(){var m=Math.floor(left/60),s=left%60;$('clock').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s}
+function ft(){var k=new Date().toDateString();$('focusTotal').textContent='Aaj ki focus time: '+(S.focus[k]||0)+' min 🌟'}
+document.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){mins=+b.dataset.m;left=mins*60;clearInterval(tm);tm=null;$('go').textContent='Start 🌸';fmt()}});
+$('go').onclick=function(){ctx();if(tm){clearInterval(tm);tm=null;$('go').textContent='Resume 🌸';return}
+ $('go').textContent='Pause';tm=setInterval(function(){left--;fmt();if(left<=0){clearInterval(tm);tm=null;var k=new Date().toDateString();S.focus[k]=(S.focus[k]||0)+mins;save();ft();left=mins*60;fmt();$('go').textContent='Start 🌸';ring('Timer khatam! Well done 🎉',null)}},1000)};
+$('reset').onclick=function(){clearInterval(tm);tm=null;left=mins*60;fmt();$('go').textContent='Start 🌸'};
+// notes + tabs
+$('notes').value=S.notes||'';$('notes').oninput=function(){S.notes=$('notes').value;save()};
+document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');['rem','focus','notes'].forEach(function(t){$('t-'+t).classList.toggle('hide',t!==b.dataset.t)})}});
+fmt();ft();render();
+</script>
+</body>
+</html>
