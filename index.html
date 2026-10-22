@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>My Pretty Planner</title>
+
+<!-- PWA & Mobile Install Support Links/Meta Tags -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#241a22">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Planner">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3652/3652191.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fff0f6;--card:#ffffff;--ink:#4a2c40;--soft:#9b7a8d;--pink:#ff8fb8;--lav:#c9b6ff;--mint:#b9f0d8;--line:#ffd6e7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -81,6 +90,13 @@ input,select{width:100%;margin-bottom:8px}
 <div id="alarm"><div class="card"><div style="font-size:40px">⏰</div><h2 id="aT"></h2><div class="row"><button class="ghost" id="snz" style="flex:1">Snooze 5m</button><button class="btn" id="ok" style="flex:1">Done ✔</button></div></div></div>
 
 <script>
+// Register Service Worker for PWA Installation Support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+
 var $=function(i){return document.getElementById(i)};
 var S={items:[],focus:{},notes:''};
 function load(){try{var r=localStorage.getItem('planner');if(r)S=JSON.parse(r)}catch(e){}}
