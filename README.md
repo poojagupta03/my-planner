@@ -5,8 +5,6 @@ A cute, pastel **study-friendly planner** that I built for my personal use. Save
 ## 🔗 Live Demo
 👉 https://poojagupta03.github.io/my-planner/
 
-## 📸 Screenshot
-(Yahan apni photo drag and drop karo)
 
 ## ✨ Features
 - ⏰ **Reminders with alarm**: sound, vibration and notification
